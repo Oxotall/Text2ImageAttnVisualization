@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Text2Image Attention Visualizer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <div class="aurora"></div>
+
+  <header class="topbar">
+    <h1 class="brand"><span class="accent">Text→Image</span> Attention Visualizer</h1>
+    <span class="device" title="compute device">{{ device }}</span>
+  </header>
+
+  <main class="layout">
+    <!-- Controls -->
+    <section class="panel controls">
+      <label class="field">
+        <span>Prompt</span>
+        <textarea id="prompt" rows="3" placeholder="a cat sitting on a red sofa">a cat sitting on a red sofa</textarea>
+      </label>
+
+      <div class="grid2">
+        <label class="field"><span>Steps</span><input id="steps" type="number" value="30" min="5" max="100" /></label>
+        <label class="field"><span>Seed</span><input id="seed" type="number" value="0" /></label>
+        <label class="field"><span>Size</span>
+          <select id="size"><option>512</option><option>384</option><option>256</option><option>768</option><option>640</option></select>
+        </label>
+        <label class="field"><span>Guidance</span><input id="guidance" type="number" value="7.5" step="0.5" min="1" max="20" /></label>
+      </div>
+
+      <button id="generate" class="btn-primary">Generate image</button>
+
+      <div class="mode">
+        <span class="mode-label">Visualize</span>
+        <div class="toggle" role="tablist">
+          <button id="mode-i2t" class="toggle-btn active" data-mode="image2text">Image → Text</button>
+          <button id="mode-cross" class="toggle-btn" data-mode="cross">Text → Image</button>
+          <button id="mode-self" class="toggle-btn" data-mode="self">Image → Image</button>
+        </div>
+      </div>
+
+      <label class="field layer-field hidden" id="layer-field">
+        <span>UNet layer</span>
+        <select id="layer"><option value="">Average</option></select>
+      </label>
+
+      <label class="field source-field hidden" id="source-field">
+        <span>Values</span>
+        <select id="source">
+          <option value="score">Pre-softmax scores</option>
+          <option value="prob">Post-softmax probabilities</option>
+        </select>
+      </label>
+
+      <label class="checkbox-field hidden" id="special-field">
+        <input id="include-special" type="checkbox" />
+        <span>Include <b>[start]</b>/<b>[end]</b> tokens in score</span>
+      </label>
+
+      <label class="field slider-field">
+        <span>Overlay strength <b id="alpha-val">0.60</b></span>
+        <input id="alpha" type="range" min="0" max="1" step="0.05" value="0.6" />
+      </label>
+
+      <p id="hint" class="hint">Generate an image to begin.</p>
+    </section>
+
+    <!-- Stage -->
+    <section class="panel stage">
+      <div id="canvas" class="canvas empty">
+        <img id="display" alt="generated image" />
+        <div id="marker" class="marker hidden"></div>
+        <div id="placeholder" class="placeholder">Your image will appear here</div>
+        <div id="spinner" class="spinner hidden">
+          <div class="ring"></div>
+          <span id="spinner-text">Generating…</span>
+        </div>
+      </div>
+
+      <div id="tokens" class="tokens"></div>
+      <div id="legend" class="legend hidden">
+        <span>low</span><div class="legend-bar"></div><span>high</span>
+        <span class="legend-cap" id="legend-cap">attention from selected region</span>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">Cross-attention: which pixels attend to a word · Self-attention: which pixels a region attends to</footer>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

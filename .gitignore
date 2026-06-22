@@ -1,0 +1,46 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+.installed.cfg
+*.egg
+
+# ---- Virtual environments ----
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# ---- Jupyter ----
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# ---- Project outputs ----
+runs/            # CLI output folders (generated.png, cross_attention.png, ...)
+*.png
+*.jpg
+*.jpeg
+!webapp/static/**   # keep any committed static assets
+
+# ---- Model weights / caches ----
+# SD 1.5 weights are downloaded at runtime, never commit them
+*.safetensors
+*.ckpt
+*.bin
+*.pt
+*.pth
+.cache/
+hf_cache/
+
+# ---- OS / editor cruft ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
