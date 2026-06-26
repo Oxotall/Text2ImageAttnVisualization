@@ -1,3 +1,8 @@
+# ---- Secrets / credentials ----
+# local HuggingFace token (HF_TOKEN); .env.example stays tracked
+.env
+credentials.env
+
 # ---- Python ----
 __pycache__/
 *.py[cod]
@@ -21,14 +26,16 @@ ENV/
 */.ipynb_checkpoints/*
 
 # ---- Project outputs ----
-runs/            # CLI output folders (generated.png, cross_attention.png, ...)
+# CLI output folders (generated.png, cross_attention.png, ...)
+runs/
 *.png
 *.jpg
 *.jpeg
-!webapp/static/**   # keep any committed static assets
+# keep any committed static assets
+!webapp/static/**
 
 # ---- Model weights / caches ----
-# SD 1.5 weights are downloaded at runtime, never commit them
+# weights are downloaded at runtime, never commit them
 *.safetensors
 *.ckpt
 *.bin

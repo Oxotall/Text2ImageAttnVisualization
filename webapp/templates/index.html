@@ -17,6 +17,15 @@
     <!-- Controls -->
     <section class="panel controls">
       <label class="field">
+        <span>Model</span>
+        <select id="model" data-loaded="{{ loaded_model }}">
+          {% for m in models %}
+          <option value="{{ m.id }}" data-size="{{ m.size }}">{{ m.label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label class="field">
         <span>Prompt</span>
         <textarea id="prompt" rows="3" placeholder="a cat sitting on a red sofa">a cat sitting on a red sofa</textarea>
       </label>
@@ -25,7 +34,7 @@
         <label class="field"><span>Steps</span><input id="steps" type="number" value="30" min="5" max="100" /></label>
         <label class="field"><span>Seed</span><input id="seed" type="number" value="0" /></label>
         <label class="field"><span>Size</span>
-          <select id="size"><option>512</option><option>384</option><option>256</option><option>768</option><option>640</option></select>
+          <select id="size"><option>1024</option><option>768</option><option>640</option><option>512</option><option>384</option><option>256</option></select>
         </label>
         <label class="field"><span>Guidance</span><input id="guidance" type="number" value="7.5" step="0.5" min="1" max="20" /></label>
       </div>
@@ -76,6 +85,7 @@
         <div id="spinner" class="spinner hidden">
           <div class="ring"></div>
           <span id="spinner-text">Generating…</span>
+          <div class="pbar"><div id="pbar-fill" class="pbar-fill"></div></div>
         </div>
       </div>
 

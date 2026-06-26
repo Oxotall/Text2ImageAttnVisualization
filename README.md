@@ -2,8 +2,9 @@
 
 Visualize where a text-to-image diffusion model "looks" while it draws.
 
-This project loads a trained **Stable Diffusion 1.5** model — decomposed into its
-three components, the **text encoder** (CLIP), the **VAE**, and the **UNet** — and
+This project loads a trained **Stable Diffusion** model (default **SD 1.5**, with
+**SDXL base 1.0** also selectable in the web UI) — decomposed into its three
+components, the **text encoder** (CLIP), the **VAE**, and the **UNet** — and
 captures the attention the UNet computes while denoising, so you can see two
 kinds of dependency:
 
@@ -71,7 +72,14 @@ Text2ImageAttnVisualization/
 - Python 3.9+
 - A GPU is recommended but not required — the code auto-detects CUDA → Apple
   Silicon (MPS) → CPU. On CPU, lower `--steps` and `--size`.
-- ~5 GB disk for the model weights (downloaded once from HuggingFace).
+- ~5 GB disk for SD 1.5 weights, ~7 GB for SDXL base (downloaded once from
+  HuggingFace).
+- **SDXL note:** SDXL base 1.0 is much larger than SD 1.5 and the explicit
+  attention capture is memory-hungry, so it wants a strong CUDA GPU (≈12–16 GB+
+  VRAM at 1024). If you hit out-of-memory, lower the size (e.g. 768) or use
+  SD 1.5. All three views work identically on SDXL — it keeps the same
+  `attn1`/`attn2` cross-attention over the 77 CLIP tokens; the only difference
+  is the finest cross-attention layer is 32² rather than 16².
 
 ## Install
 
@@ -83,6 +91,20 @@ pip install -r requirements.txt
 
 The first run downloads the SD 1.5 weights. If the default repo is unavailable,
 pass another mirror, e.g. `--model sd-legacy/stable-diffusion-v1-5`.
+
+## Credentials (optional)
+
+Gated models (SDXL, SD 2.1) need a HuggingFace token; ungated SD 1.5 does not.
+Copy `.env.example` to `.env` and paste your token:
+
+```bash
+cp .env.example .env
+# then edit .env:  HF_TOKEN=hf_xxxxxxxx   (get one at huggingface.co/settings/tokens)
+```
+
+`.env` is gitignored, so your token is never committed. If the file is missing
+or `HF_TOKEN` is blank, the app still runs — it just can't download gated models.
+A token set in the shell environment (`export HF_TOKEN=...`) takes precedence.
 
 ## Run the CLI
 
@@ -111,6 +133,9 @@ python run_web.py            # then open http://127.0.0.1:8000
 
 The page lets you:
 
+0. pick a **model** — Stable Diffusion 1.5 (512) or SDXL base 1.0 (1024); the
+   size box jumps to the model's native resolution, and the chosen model loads
+   on the next generate (SDXL is a large download and needs a strong GPU);
 1. type a **prompt** and generate an image (the model loads on first generate);
 2. in **Text → Image** mode, click any **token chip** to heatmap the regions
    that attend to that word (cross-attention);

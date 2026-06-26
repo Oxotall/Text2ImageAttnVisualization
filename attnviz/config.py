@@ -28,6 +28,7 @@ class Config:
     """
 
     model_id: str = "stable-diffusion-v1-5/stable-diffusion-v1-5"
+    architecture: str = "sd"  # "sd" (SD 1.5/2.1) or "sdxl" (SDXL base 1.0)
     device: Optional[str] = None
     dtype: Optional[str] = None
     image_size: int = 512

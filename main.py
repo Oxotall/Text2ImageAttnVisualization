@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 
 from attnviz import Config, DeviceResolver, Generator, PipelineLoader
+from attnviz.credentials import load_hf_token
 from attnviz.figure_saver import FigureSaver
 
 
@@ -39,6 +40,7 @@ def build_config(args: argparse.Namespace) -> Config:
 
 def main() -> None:
     args = parse_args()
+    load_hf_token()  # optional — reads .env if present, else no-op
     config = build_config(args)
 
     resolver = DeviceResolver(config.device, config.dtype)

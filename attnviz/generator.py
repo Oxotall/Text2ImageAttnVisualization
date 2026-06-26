@@ -43,8 +43,12 @@ class Generator:
         self._store = AttentionStore(self_attn_max_res=config.self_attn_max_res)
         self._decoder = TokenDecoder(loader.tokenizer)
 
-    def generate(self, prompt: str) -> GenerationResult:
-        """Produce an image for ``prompt`` and capture its attention maps."""
+    def generate(self, prompt: str, on_step=None) -> GenerationResult:
+        """Produce an image for ``prompt`` and capture its attention maps.
+
+        ``on_step(step, total)`` is called once per denoising step (1-based) so
+        callers can show a progress bar.
+        """
         self._store.reset()
         controller = AttentionController(
             self._loader.unet, self._store,
@@ -52,19 +56,28 @@ class Generator:
             capture_self=self._config.capture_self,
         )
         with controller:
-            image = self._run_pipe(prompt)
+            image = self._run_pipe(prompt, on_step)
         return self._build_result(prompt, image)
 
-    def _run_pipe(self, prompt: str) -> Image.Image:
+    def _run_pipe(self, prompt: str, on_step=None) -> Image.Image:
         generator = torch.Generator(device="cpu").manual_seed(self._config.seed)
-        output = self._loader.pipe(
-            prompt,
+        kwargs = dict(
+            prompt=prompt,
             height=self._config.image_size,
             width=self._config.image_size,
             num_inference_steps=self._config.num_inference_steps,
             guidance_scale=self._config.guidance_scale,
             generator=generator,
         )
+        if on_step is not None:
+            total = self._config.num_inference_steps
+
+            def _callback(_pipe, step_index, _timestep, callback_kwargs):
+                on_step(step_index + 1, total)
+                return callback_kwargs
+
+            kwargs["callback_on_step_end"] = _callback
+        output = self._loader.pipe(**kwargs)
         return output.images[0]
 
     def _build_result(self, prompt: str, image: Image.Image) -> GenerationResult:

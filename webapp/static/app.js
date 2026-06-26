@@ -3,12 +3,13 @@
 // ---- element handles ----------------------------------------------------
 const $ = (id) => document.getElementById(id);
 const els = {
+  model: $("model"),
   prompt: $("prompt"), steps: $("steps"), seed: $("seed"), size: $("size"),
   guidance: $("guidance"), generate: $("generate"),
   modeButtons: Array.from(document.querySelectorAll(".toggle-btn")),
   alpha: $("alpha"), alphaVal: $("alpha-val"), hint: $("hint"),
   canvas: $("canvas"), display: $("display"), marker: $("marker"),
-  spinner: $("spinner"), spinnerText: $("spinner-text"),
+  spinner: $("spinner"), spinnerText: $("spinner-text"), pbarFill: $("pbar-fill"),
   tokens: $("tokens"), legend: $("legend"), legendCap: $("legend-cap"),
   layer: $("layer"), layerField: $("layer-field"),
   includeSpecial: $("include-special"), specialField: $("special-field"),
@@ -18,7 +19,7 @@ const els = {
 // ---- state --------------------------------------------------------------
 const state = {
   sessionId: null, width: 512, mode: "image2text", alpha: 0.6, layer: "",
-  includeSpecial: false, source: "score",
+  includeSpecial: false, source: "score", model: "",
   activeToken: null, lastSelf: null, lastI2t: null, baseImage: null,
   layersCross: [], layersSelf: [], crossRes: null, selfRes: null,
 };
@@ -52,12 +53,21 @@ async function postJSON(url, body) {
   return data;
 }
 
+// ---- model selection ----------------------------------------------------
+function onModelChange() {
+  state.model = els.model.value;
+  const size = els.model.options[els.model.selectedIndex].dataset.size;
+  if (size) els.size.value = size;   // jump to the model's native resolution
+}
+
 // ---- generation ---------------------------------------------------------
 async function generate() {
   els.generate.disabled = true;
-  showSpinner("Generating image… (first run loads the model)");
+  showSpinner("Preparing… (first run downloads & loads the model)");
+  startProgressPolling();
   try {
     const data = await postJSON("/api/generate", {
+      model_id: state.model,
       prompt: els.prompt.value,
       steps: Number(els.steps.value),
       seed: Number(els.seed.value),
@@ -68,9 +78,32 @@ async function generate() {
   } catch (err) {
     els.hint.textContent = "⚠ " + err.message;
   } finally {
+    stopProgressPolling();
     hideSpinner();
     els.generate.disabled = false;
   }
+}
+
+// poll the server for denoising progress and drive the bar
+let _progressTimer = null;
+function startProgressPolling() {
+  els.pbarFill.style.width = "0%";
+  _progressTimer = setInterval(async () => {
+    try {
+      const p = await fetch("/api/progress").then((r) => r.json());
+      if (p.total > 0 && p.step > 0) {
+        const pct = Math.min(100, Math.round((p.step / p.total) * 100));
+        els.pbarFill.style.width = pct + "%";
+        els.spinnerText.textContent = `Denoising — step ${p.step} / ${p.total}`;
+      } else {
+        els.spinnerText.textContent = "Preparing… (loading model on first run)";
+      }
+    } catch (e) { /* ignore transient poll errors */ }
+  }, 250);
+}
+function stopProgressPolling() {
+  if (_progressTimer) { clearInterval(_progressTimer); _progressTimer = null; }
+  els.pbarFill.style.width = "0%";
 }
 
 function onGenerated(data) {
@@ -322,6 +355,7 @@ function hideSpinner() { els.spinner.classList.add("hidden"); }
 
 // ---- wire up ------------------------------------------------------------
 els.generate.addEventListener("click", generate);
+els.model.addEventListener("change", onModelChange);
 els.modeButtons.forEach((btn) => btn.addEventListener("click", () => setMode(btn.dataset.mode)));
 els.alpha.addEventListener("input", onAlphaChange);
 els.layer.addEventListener("change", onLayerChange);
@@ -329,5 +363,6 @@ els.includeSpecial.addEventListener("change", onIncludeSpecialChange);
 els.source.addEventListener("change", onSourceChange);
 els.canvas.addEventListener("click", onCanvasClick);
 
-// sync the UI to the default mode (Image -> Text) on load
+// initialize model + size from the server-rendered dropdown, then sync the mode UI
+onModelChange();
 setMode(state.mode);

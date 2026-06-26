@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 
 from attnviz import Config
+from attnviz.credentials import load_hf_token
 from webapp import VizServer
 
 
@@ -29,6 +30,8 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    token = load_hf_token()  # optional — reads .env if present, else no-op
+    print("HuggingFace token:", "loaded" if token else "none (ungated models only)")
     config = Config(model_id=args.model, device=args.device)
     server = VizServer(config)
     print(f"Serving on http://{args.host}:{args.port}  (model loads on first generate)")

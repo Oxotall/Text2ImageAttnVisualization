@@ -176,6 +176,13 @@ input[type=range] { accent-color: var(--magenta); padding: 0; }
   animation: spin 0.9s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* denoising progress bar */
+.pbar { width: 220px; height: 8px; border-radius: 6px; overflow: hidden;
+  background: rgba(255,255,255,0.12); border: 1px solid var(--border); }
+.pbar-fill { height: 100%; width: 0%; border-radius: 6px;
+  background: linear-gradient(90deg, var(--teal), var(--magenta), var(--yellow));
+  transition: width .25s ease; }
+
 
 /* ---- tokens ----------------------------------------------------------- */
 .tokens { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; justify-content: center; }

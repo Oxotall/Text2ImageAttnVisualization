@@ -1,4 +1,7 @@
+# Install torch and torchvision together, the same way (all-pip), so their
+# builds match — a torch/torchvision version mismatch causes import errors.
 torch>=2.0.0
+torchvision>=0.15.0
 diffusers>=0.27.0
 transformers>=4.38.0
 accelerate>=0.27.0

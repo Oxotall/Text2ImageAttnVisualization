@@ -38,6 +38,7 @@ class VizServer:
         self._app.add_url_rule("/", "index", self._index)
         self._app.add_url_rule("/api/generate", "generate", self._generate, methods=["POST"])
         self._app.add_url_rule("/api/load_model", "load_model", self._load_model, methods=["POST"])
+        self._app.add_url_rule("/api/progress", "progress", self._progress, methods=["GET"])
         self._app.add_url_rule("/api/cross", "cross", self._cross, methods=["POST"])
         self._app.add_url_rule("/api/self", "self_attn", self._self, methods=["POST"])
         self._app.add_url_rule("/api/image2text", "image2text", self._image2text, methods=["POST"])
@@ -77,6 +78,9 @@ class VizServer:
         loaded = self._service.ensure_model(model_id)
         return jsonify({"model_id": model_id, "loaded": loaded,
                         "device": self._service.device_label})
+
+    def _progress(self):
+        return jsonify(self._service.progress())
 
     def _model_id(self, data) -> str:
         model_id = str(data.get("model_id") or self._service.default_model_id())
