@@ -77,9 +77,7 @@ Text2ImageAttnVisualization/
 - **SDXL note:** SDXL base 1.0 is much larger than SD 1.5 and the explicit
   attention capture is memory-hungry, so it wants a strong CUDA GPU (≈12–16 GB+
   VRAM at 1024). If you hit out-of-memory, lower the size (e.g. 768) or use
-  SD 1.5. All three views work identically on SDXL — it keeps the same
-  `attn1`/`attn2` cross-attention over the 77 CLIP tokens; the only difference
-  is the finest cross-attention layer is 32² rather than 16².
+  SD 1.5.
 
 ## Install
 
@@ -126,10 +124,6 @@ Useful flags: `--steps`, `--size`, `--guidance`, `--seed`, `--device`, `--model`
 python run_web.py            # then open http://127.0.0.1:8000
 ```
 
-> On macOS, port 5000 is occupied by the AirPlay Receiver and returns
-> "HTTP 403 Forbidden", so the app defaults to port 8000. Override with
-> `--port` if needed. You can also free port 5000 via
-> System Settings → General → AirDrop & Handoff → turn off "AirPlay Receiver".
 
 The page lets you:
 
@@ -159,9 +153,7 @@ The page lets you:
    a fixed token; image-to-text keeps post-softmax, where the softmax-over-tokens
    is exactly the right normalization.
 
-Flags: `--host`, `--port`, `--device`, `--model`, `--debug`. The UI uses the
-project's color palette (`#2E16B1 #B70094 #009D92 #FFCB00 #7608AA #FF4100
-#ff6f00 #bdf400`).
+Flags: `--host`, `--port`, `--device`, `--model`, `--debug`.
 
 ## Run the interactive notebook
 
@@ -169,12 +161,6 @@ project's color palette (`#2E16B1 #B70094 #009D92 #FFCB00 #7608AA #FF4100
 pip install jupyter ipywidgets
 jupyter notebook notebooks/interactive_visualization.ipynb
 ```
-
-The notebook generates an image once, then gives you:
-
-- a **dropdown of text tokens** — pick a word to see its cross-attention map;
-- a **click-to-query** image — click any point to see what that region attended
-  to via self-attention.
 
 ## Using it as a library
 
