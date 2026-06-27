@@ -1,7 +1,12 @@
-# Install torch and torchvision together, the same way (all-pip), so their
-# builds match — a torch/torchvision version mismatch causes import errors.
-torch>=2.0.0
-torchvision>=0.15.0
+# Install torch and torchvision together (all-pip) so their builds match.
+# Capped below 2.7: torch 2.7+ wheels dropped Volta support (e.g. Tesla V100,
+# compute capability 7.0); 2.0–2.6 still include sm_70 and also run on newer
+# GPUs. For a specific CUDA build — or to go above 2.7 on Blackwell — install
+# torch/torchvision manually from https://download.pytorch.org/whl. Examples:
+#   V100 / older CUDA:  pip install "torch==2.5.1" "torchvision==0.20.1" --index-url https://download.pytorch.org/whl/cu121
+#   CPU only:           pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+torch>=2.0.0,<2.7
+torchvision>=0.15.0,<0.22
 diffusers>=0.27.0
 transformers>=4.38.0
 accelerate>=0.27.0
